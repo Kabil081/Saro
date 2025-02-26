@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "719076173628",
+    "project_id": "saro-5e271",
+    "storage_bucket": "saro-5e271.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:719076173628:android:3b3dc3f8058bb154da2039",
+        "android_client_info": {
+          "package_name": "com.example.saro_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBVR8nA00fTzlrEcJoW6nOHk0tLDg1OspI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
