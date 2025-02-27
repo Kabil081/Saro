@@ -4,7 +4,22 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="696f181f-d83a-4318-9971-bb866d0ea95d" name="Changes" comment="" />
+    <list default="true" id="696f181f-d83a-4318-9971-bb866d0ea95d" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/front-end/.dart_tool/dartpad/web_plugin_registrant.dart" beforeDir="false" afterPath="$PROJECT_DIR$/front-end/.dart_tool/dartpad/web_plugin_registrant.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/front-end/.dart_tool/package_config.json" beforeDir="false" afterPath="$PROJECT_DIR$/front-end/.dart_tool/package_config.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/front-end/.dart_tool/package_config_subset" beforeDir="false" afterPath="$PROJECT_DIR$/front-end/.dart_tool/package_config_subset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/front-end/.flutter-plugins" beforeDir="false" afterPath="$PROJECT_DIR$/front-end/.flutter-plugins" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/front-end/.flutter-plugins-dependencies" beforeDir="false" afterPath="$PROJECT_DIR$/front-end/.flutter-plugins-dependencies" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/front-end/android/app/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/front-end/android/app/build.gradle.kts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/front-end/android/app/google-services.json" beforeDir="false" afterPath="$PROJECT_DIR$/front-end/android/app/google-services.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/front-end/android/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/front-end/android/build.gradle.kts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/front-end/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/front-end/lib/main.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/front-end/macos/Flutter/GeneratedPluginRegistrant.swift" beforeDir="false" afterPath="$PROJECT_DIR$/front-end/macos/Flutter/GeneratedPluginRegistrant.swift" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/front-end/pubspec.lock" beforeDir="false" afterPath="$PROJECT_DIR$/front-end/pubspec.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/front-end/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/front-end/pubspec.yaml" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -13,11 +28,14 @@
   <component name="ClangdSettings">
     <option name="formatViaClangd" value="false" />
   </component>
-  <component name="ExecutionTargetManager" SELECTED_TARGET="device_and_snapshot_combo_box_target[DeviceId(pluginId=LocalEmulator, isTemplate=false, identifier=path=C:\Users\kabil\.android\avd\Pixel_9_Pro_XL_API_35.avd)]" />
+  <component name="ExecutionTargetManager" SELECTED_TARGET="device_and_snapshot_combo_box_target[]" />
   <component name="ExternalProjectsData">
     <projectState path="$PROJECT_DIR$">
       <ProjectState />
     </projectState>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="ProblemsViewState">
     <option name="selectedTabId" value="CurrentFile" />
@@ -39,13 +57,14 @@
     "cf.first.check.clang-format": "false",
     "cidr.known.project.marker": "true",
     "dart.analysis.tool.window.visible": "false",
+    "git-widget-placeholder": "main",
     "kotlin-language-version-configured": "true",
     "last_opened_file_path": "D:/Apps/saro_app",
     "settings.editor.selected.configurable": "AndroidSdkUpdater",
     "show.migrate.to.gradle.popup": "false"
   }
 }]]></component>
-  <component name="RunManager" selected="Android App.app">
+  <component name="RunManager">
     <configuration name="app" type="AndroidRunConfigurationType" factoryName="Android App" activateToolWindowBeforeRun="false">
       <module name="saro_app.app" />
       <option name="ANDROID_RUN_CONFIGURATION_SCHEMA_VERSION" value="1" />
@@ -113,9 +132,7 @@
       <option name="ACTIVITY_CLASS" value="" />
       <option name="SEARCH_ACTIVITY_IN_GLOBAL_SCOPE" value="false" />
       <option name="SKIP_ACTIVITY_VALIDATION" value="false" />
-      <method v="2">
-        <option name="Android.Gradle.BeforeRunTask" enabled="true" />
-      </method>
+      <method v="2" />
     </configuration>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />

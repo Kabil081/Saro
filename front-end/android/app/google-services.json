@@ -12,7 +12,20 @@
           "package_name": "com.example.saro_app"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "719076173628-4s2vtggdvfa4e7plhpc2obhrfv27cbia.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.saro_app",
+            "certificate_hash": "2076469e9ff6b0abf5c19b59583d8688031f1ce9"
+          }
+        },
+        {
+          "client_id": "719076173628-4dugj4ljv08ac9q3vlntipjh0lsjql5d.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyBVR8nA00fTzlrEcJoW6nOHk0tLDg1OspI"
@@ -20,7 +33,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "719076173628-4dugj4ljv08ac9q3vlntipjh0lsjql5d.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "719076173628-266r55i4471jn5e9r9ua0b24hqtnpvkl.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.saroApp"
+              }
+            }
+          ]
         }
       }
     }
