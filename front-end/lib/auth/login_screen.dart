@@ -1,13 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:saro_app/auth/auth_service.dart';
-import 'package:saro_app/auth/signup_screen.dart';
-import 'package:saro_app/auth/phone_verification.dart';
 import 'package:saro_app/widgets/custom_widgets.dart';
 import 'package:saro_app/theme_constants.dart';
 
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({Key? key}) : super(key: key);
+  const LoginScreen({super.key});
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -15,248 +12,224 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _auth = AuthService();
-  final TextEditingController _email = TextEditingController();
-  final TextEditingController _password = TextEditingController();
-  
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
   bool _isLoading = false;
-  bool _isGoogleLoading = false;
+  bool _obscurePassword = true;
+  final AuthService _authService = AuthService();
   String? _errorMessage;
 
   @override
   void dispose() {
-    _email.dispose();
-    _password.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
     super.dispose();
   }
 
-  // Email validation
-  String? _validateEmail(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Email is required';
-    }
-    if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
-      return 'Enter a valid email address';
-    }
-    return null;
-  }
-  
-  // Password validation
-  String? _validatePassword(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Password is required';
-    }
-    if (value.length < 6) {
-      return 'Password must be at least 6 characters';
-    }
-    return null;
-  }
-
-  // Login with email/password
   Future<void> _login() async {
-    if (!_formKey.currentState!.validate()) return;
-    
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
+
     setState(() {
       _isLoading = true;
       _errorMessage = null;
     });
-    
-    try {
-      final status = await _auth.signInWithEmailAndPassword(
-        _email.text.trim(),
-        _password.text.trim(),
-      );
-      
-      if (status == AuthStatus.emailVerified) {
-        _navigateToPhoneVerification();
-      }
-    } catch (e) {
-      setState(() {
-        _errorMessage = e.toString();
-      });
-    } finally {
-      setState(() {
-        _isLoading = false;
-      });
-    }
-  }
-  
-  // Google sign in
-  Future<void> _signInWithGoogle() async {
-    setState(() {
-      _isGoogleLoading = true;
-      _errorMessage = null;
-    });
-    
-    try {
-      final status = await _auth.signInWithGoogle();
-      
-      if (status == AuthStatus.emailVerified) {
-        _navigateToPhoneVerification();
-      }
-    } catch (e) {
-      setState(() {
-        _errorMessage = e.toString();
-      });
-    } finally {
-      setState(() {
-        _isGoogleLoading = false;
-      });
-    }
-  }
-  
-  void _navigateToPhoneVerification() {
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => const PhoneVerificationScreen()),
-    );
-  }
 
-  void _navigateToSignup() {
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => const SignupScreen()),
-    );
+    try {
+      await _authService.signInWithEmailAndPassword(
+        _emailController.text.trim(),
+        _passwordController.text,
+      );
+      // Navigation handled by AuthWrapper
+    } catch (e) {
+      setState(() {
+        _errorMessage = e.toString().contains('password')
+            ? 'Incorrect email or password'
+            : 'An error occurred. Please try again.';
+      });
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: AnnotatedRegion<SystemUiOverlayStyle>(
-        value: SystemUiOverlayStyle.dark,
-        child: SafeArea(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 24),
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          return SingleChildScrollView(
             child: ConstrainedBox(
               constraints: BoxConstraints(
-                minHeight: MediaQuery.of(context).size.height - 
-                    MediaQuery.of(context).padding.top - 
-                    MediaQuery.of(context).padding.bottom,
+                minHeight: constraints.maxHeight,
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  const SizedBox(height: 60),
-                  const AppTitle(),
-                  const SizedBox(height: 20),
-                  const Text(
-                    "Welcome back",
-                    style: AppTheme.subheadingStyle,
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 40),
-                  
-                  // Error message
-                  if (_errorMessage != null)
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 16),
-                      child: Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: AppTheme.errorColor.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Text(
-                          _errorMessage!.replaceAll(RegExp(r'\[.*\]'), '').trim(),
-                          style: const TextStyle(
-                            color: AppTheme.errorColor,
-                            fontWeight: FontWeight.w500,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-                    ),
-                  
-                  // Form
-                  Form(
-                    key: _formKey,
+              child: IntrinsicHeight(
+                child: SafeArea(
+                  child: Padding(
+                    padding: const EdgeInsets.all(24.0),
                     child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        CustomTextField(
-                          label: "Email",
-                          hint: "Enter your email",
-                          controller: _email,
-                          keyboardType: TextInputType.emailAddress,
-                          validator: _validateEmail,
-                          prefixIcon: const Icon(Icons.email_outlined),
+                        const SizedBox(height: 40),
+                        
+                        // Logo or app title
+                        Text(
+                          "SARO Secure",
+                          style: AppTheme.headingStyle.copyWith(
+                            fontSize: 32,
+                            color: AppTheme.accentColor,
+                          ),
                         ),
-                        const SizedBox(height: 20),
-                        CustomTextField(
-                          label: "Password",
-                          hint: "Enter your password",
-                          controller: _password,
-                          isPassword: true,
-                          validator: _validatePassword,
-                          prefixIcon: const Icon(Icons.lock_outline),
+                        
+                        const SizedBox(height: 16),
+                        
+                        Text(
+                          "Sign in to continue",
+                          style: AppTheme.bodyStyle,
+                        ),
+                        
+                        const SizedBox(height: 40),
+                        
+                        if (_errorMessage != null)
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 12,
+                            ),
+                            decoration: BoxDecoration(
+                              color: AppTheme.errorColor.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                color: AppTheme.errorColor.withOpacity(0.3),
+                              ),
+                            ),
+                            child: Row(
+                              children: [
+                                const Icon(
+                                  Icons.error_outline,
+                                  color: AppTheme.errorColor,
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Text(
+                                    _errorMessage!,
+                                    style: const TextStyle(
+                                      color: AppTheme.errorColor,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          
+                        const SizedBox(height: 24),
+                        
+                        // Login form
+                        Form(
+                          key: _formKey,
+                          child: Column(
+                            children: [
+                              CustomTextField(
+                                hintText: 'Email',
+                                prefixIcon: Icons.email_outlined,
+                                controller: _emailController,
+                                keyboardType: TextInputType.emailAddress,
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return 'Please enter your email';
+                                  }
+                                  if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
+                                      .hasMatch(value)) {
+                                    return 'Please enter a valid email';
+                                  }
+                                  return null;
+                                },
+                              ),
+                              
+                              const SizedBox(height: 16),
+                              
+                              CustomTextField(
+                                hintText: 'Password',
+                                prefixIcon: Icons.lock_outlined,
+                                controller: _passwordController,
+                                obscureText: _obscurePassword,
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return 'Please enter your password';
+                                  }
+                                  return null;
+                                },
+                                suffixIcon: IconButton(
+                                  icon: Icon(
+                                    _obscurePassword
+                                        ? Icons.visibility_outlined
+                                        : Icons.visibility_off_outlined,
+                                    color: AppTheme.secondaryColor,
+                                  ),
+                                  onPressed: () {
+                                    setState(() {
+                                      _obscurePassword = !_obscurePassword;
+                                    });
+                                  },
+                                ),
+                              ),
+                              
+                              const SizedBox(height: 8),
+                              
+                              Align(
+                                alignment: Alignment.centerRight,
+                                child: TextButton(
+                                  onPressed: () {
+                                    // Handle forgot password
+                                  },
+                                  child: const Text('Forgot Password?'),
+                                ),
+                              ),
+                              
+                              const SizedBox(height: 24),
+                              
+                              CustomButton(
+                                label: 'Sign In',
+                                onPressed: _login,
+                                isLoading: _isLoading,
+                              ),
+                              
+                              const SizedBox(height: 24),
+                            ],
+                          ),
+                        ),
+                        
+                        const Spacer(),
+                        
+                        // Sign up text
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Text(
+                              "Don't have an account? ",
+                              style: AppTheme.bodyStyle,
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                Navigator.pushReplacementNamed(context, '/signup');
+                              },
+                              child: const Text('Sign Up'),
+                            ),
+                          ],
                         ),
                       ],
                     ),
                   ),
-                  
-                  // Forgot password
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: TextButton(
-                      onPressed: () {
-                        // Implement forgot password functionality
-                      },
-                      child: const Text("Forgot Password?"),
-                    ),
-                  ),
-                  
-                  const SizedBox(height: 24),
-                  
-                  // Login button
-                  CustomButton(
-                    label: "Login",
-                    onPressed: _login,
-                    isLoading: _isLoading,
-                  ),
-                  
-                  const SizedBox(height: 24),
-                  
-                  // Divider
-                  const DividerWithText(text: "OR"),
-                  
-                  const SizedBox(height: 24),
-                  
-                  // Google sign in button
-                  SocialSignInButton(
-                    label: "Continue with Google",
-                    logoAsset: "assets/images/google_logo.png", // Add this to assets
-                    onPressed: _signInWithGoogle,
-                    isLoading: _isGoogleLoading,
-                  ),
-                  
-                  const SizedBox(height: 24),
-                  
-                  // Sign up link
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Text(
-                        "Don't have an account? ",
-                        style: AppTheme.bodyStyle,
-                      ),
-                      GestureDetector(
-                        onTap: _navigateToSignup,
-                        child: const Text(
-                          "Sign Up",
-                          style: TextStyle(
-                            color: AppTheme.accentColor,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  
-                  const SizedBox(height: 40),
-                ],
+                ),
               ),
             ),
-          ),
-        ),
+          );
+        },
       ),
     );
   }

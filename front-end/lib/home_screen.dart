@@ -6,7 +6,7 @@ import 'package:saro_app/widgets/custom_widgets.dart';
 import 'package:saro_app/theme_constants.dart';
 
 class HomeScreen extends StatelessWidget {
-  const HomeScreen({Key? key}) : super(key: key);
+  const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -149,7 +149,7 @@ class HomeScreen extends StatelessWidget {
                   label: "Sign Out",
                   onPressed: () => _showSignOutDialog(context, auth),
                   isSecondary: true,
-                  icon: const Icon(Icons.logout, size: 20),
+                  icon: Icons.logout,
                 ),
                 
                 const SizedBox(height: 24),

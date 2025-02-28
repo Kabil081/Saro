@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:saro_app/auth/auth_service.dart';
 import 'package:saro_app/home_screen.dart';
 import 'package:saro_app/widgets/custom_widgets.dart';
@@ -25,7 +24,6 @@ class _PhoneVerificationScreenState extends State<PhoneVerificationScreen> {
   bool _codeSent = false;
   String? _verificationId;
   String? _errorMessage;
-  int _resendToken = 0;
   int _secondsRemaining = 0;
   Timer? _timer;
 
@@ -62,17 +60,30 @@ class _PhoneVerificationScreenState extends State<PhoneVerificationScreen> {
   // Start phone verification process
   Future<void> _verifyPhone() async {
     if (!_phoneFormKey.currentState!.validate()) return;
+    
     setState(() {
       _isLoading = true;
       _errorMessage = null;
     });
+    
     try {
       await _auth.verifyPhoneNumber(
         phoneNumber: _phoneController.text.trim(),
-        verificationCompleted: _onVerificationCompleted,
-        verificationFailed: _onVerificationFailed,
-        codeSent: _onCodeSent,
-        codeAutoRetrievalTimeout: _onCodeAutoRetrievalTimeout,
+        onCodeSent: (String verificationId) {
+          setState(() {
+            _verificationId = verificationId;
+            _codeSent = true;
+            _isLoading = false;
+            _secondsRemaining = 60;
+          });
+          _startTimer();
+        },
+        onVerificationFailed: (String errorMessage) {
+          setState(() {
+            _isLoading = false;
+            _errorMessage = errorMessage;
+          });
+        },
       );
     } catch (e) {
       setState(() {
@@ -98,8 +109,12 @@ class _PhoneVerificationScreenState extends State<PhoneVerificationScreen> {
           _codeController.text.trim(),
         );
         
-        if (status == AuthStatus.phoneVerified) {
+        if (status) {
           _navigateToHome();
+        } else {
+          setState(() {
+            _errorMessage = "Failed to verify code. Please try again.";
+          });
         }
       } else {
         throw Exception("Verification ID is null. Please try again.");
@@ -113,56 +128,6 @@ class _PhoneVerificationScreenState extends State<PhoneVerificationScreen> {
         _isLoading = false;
       });
     }
-  }
-
-  // Callbacks for Firebase phone auth
-  void _onVerificationCompleted(PhoneAuthCredential credential) async {
-    setState(() {
-      _isLoading = true;
-      _errorMessage = null;
-    });
-    
-    try {
-      if (_auth.currentUser != null) {
-        await _auth.currentUser!.linkWithCredential(credential);
-        _navigateToHome();
-      }
-    } catch (e) {
-      setState(() {
-        _errorMessage = e.toString();
-      });
-    } finally {
-      setState(() {
-        _isLoading = false;
-      });
-    }
-  }
-
-  void _onVerificationFailed(FirebaseAuthException exception) {
-    setState(() {
-      _isLoading = false;
-      _errorMessage = exception.message;
-    });
-  }
-
-  void _onCodeSent(String verificationId, int? resendToken) {
-    setState(() {
-      _verificationId = verificationId;
-      if (resendToken != null) {
-        _resendToken = resendToken;
-      }
-      _codeSent = true;
-      _isLoading = false;
-      _secondsRemaining = 60;
-    });
-    
-    _startTimer();
-  }
-
-  void _onCodeAutoRetrievalTimeout(String verificationId) {
-    setState(() {
-      _verificationId = verificationId;
-    });
   }
   
   void _startTimer() {
@@ -179,9 +144,10 @@ class _PhoneVerificationScreenState extends State<PhoneVerificationScreen> {
   }
 
   void _navigateToHome() {
-    Navigator.pushReplacement(
+    Navigator.pushAndRemoveUntil(
       context,
       MaterialPageRoute(builder: (context) => const HomeScreen()),
+      (route) => false,
     );
   }
 
@@ -203,41 +169,103 @@ class _PhoneVerificationScreenState extends State<PhoneVerificationScreen> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   const SizedBox(height: 40),
-                  const AppTitle(),
-                  const SizedBox(height: 20),
+                  
+                  // Progress indicator
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        height: 8,
+                        width: 70,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(4),
+                          color: AppTheme.accentColor,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Container(
+                        height: 8,
+                        width: 70,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(4),
+                          color: AppTheme.accentColor,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Container(
+                        height: 8,
+                        width: 70,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(4),
+                          color: Colors.grey.shade300,
+                        ),
+                      ),
+                    ],
+                  ),
+                  
+                  const SizedBox(height: 30),
+                  
+                  // App Title
                   Text(
-                    _codeSent ? "Enter Verification Code" : "Verify Your Phone Number",
-                    style: AppTheme.subheadingStyle,
+                    "SARO Secure",
+                    style: AppTheme.headingStyle.copyWith(
+                      fontSize: 32,
+                      color: AppTheme.accentColor,
+                    ),
                     textAlign: TextAlign.center,
                   ),
+                  
+                  const SizedBox(height: 20),
+                  
+                  Text(
+                    _codeSent ? "Enter Verification Code" : "Verify Your Phone",
+                    style: AppTheme.headingStyle.copyWith(fontSize: 22),
+                    textAlign: TextAlign.center,
+                  ),
+                  
                   const SizedBox(height: 16),
+                  
                   Text(
                     _codeSent
                         ? "We have sent a verification code to ${_phoneController.text}"
-                        : "We'll send a verification code to your phone to complete the 2-factor authentication.",
+                        : "We'll send a verification code to complete the 2-factor authentication",
                     style: AppTheme.bodyStyle,
                     textAlign: TextAlign.center,
                   ),
+                  
                   const SizedBox(height: 40),
                   
                   // Error message
                   if (_errorMessage != null)
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 24),
-                      child: Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: AppTheme.errorColor.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 12,
+                      ),
+                      margin: const EdgeInsets.only(bottom: 24),
+                      decoration: BoxDecoration(
+                        color: AppTheme.errorColor.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: AppTheme.errorColor.withOpacity(0.3),
                         ),
-                        child: Text(
-                          _errorMessage!.replaceAll(RegExp(r'\[.*\]'), '').trim(),
-                          style: const TextStyle(
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(
+                            Icons.error_outline,
                             color: AppTheme.errorColor,
-                            fontWeight: FontWeight.w500,
                           ),
-                          textAlign: TextAlign.center,
-                        ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              _errorMessage!.replaceAll(RegExp(r'\[.*\]'), '').trim(),
+                              style: const TextStyle(
+                                color: AppTheme.errorColor,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   
@@ -248,14 +276,15 @@ class _PhoneVerificationScreenState extends State<PhoneVerificationScreen> {
                       child: Column(
                         children: [
                           CustomTextField(
-                            label: "Phone Number",
-                            hint: "e.g. +1234567890",
+                            hintText: "Phone Number (e.g. +1234567890)",
+                            prefixIcon: Icons.phone_outlined,
                             controller: _phoneController,
                             keyboardType: TextInputType.phone,
                             validator: _validatePhone,
-                            prefixIcon: const Icon(Icons.phone_outlined),
                           ),
+                          
                           const SizedBox(height: 24),
+                          
                           CustomButton(
                             label: "Send Verification Code",
                             onPressed: _verifyPhone,
@@ -272,14 +301,15 @@ class _PhoneVerificationScreenState extends State<PhoneVerificationScreen> {
                       child: Column(
                         children: [
                           CustomTextField(
-                            label: "Verification Code",
-                            hint: "Enter 6-digit code",
+                            hintText: "Enter 6-digit code",
+                            prefixIcon: Icons.security_outlined,
                             controller: _codeController,
                             keyboardType: TextInputType.number,
                             validator: _validateCode,
-                            prefixIcon: const Icon(Icons.security_outlined),
                           ),
+                          
                           const SizedBox(height: 12),
+                          
                           Row(
                             mainAxisAlignment: MainAxisAlignment.end,
                             children: [
@@ -297,9 +327,11 @@ class _PhoneVerificationScreenState extends State<PhoneVerificationScreen> {
                                 ),
                             ],
                           ),
+                          
                           const SizedBox(height: 24),
+                          
                           CustomButton(
-                            label: "Verify",
+                            label: "Complete Verification",
                             onPressed: _verifyCode,
                             isLoading: _isLoading,
                           ),

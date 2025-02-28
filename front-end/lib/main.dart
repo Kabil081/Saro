@@ -2,11 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:saro_app/auth/auth_service.dart';
 import 'package:saro_app/auth/login_screen.dart';
+import 'package:saro_app/auth/signup_screen.dart';
 import 'package:saro_app/auth/phone_verification.dart';
 import 'package:saro_app/home_screen.dart';
 import 'package:saro_app/theme_constants.dart';
 
-Future main() async {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   runApp(const MyApp());
@@ -21,7 +22,14 @@ class MyApp extends StatelessWidget {
       title: 'SARO Secure',
       theme: AppTheme.themeData,
       debugShowCheckedModeBanner: false,
-      home: const AuthWrapper(),
+      initialRoute: '/',
+      routes: {
+        '/': (context) => const AuthWrapper(),
+        '/login': (context) => const LoginScreen(),
+        '/signup': (context) => const SignupScreen(),
+        '/phone_verification': (context) => const PhoneVerificationScreen(),
+        '/home': (context) => const HomeScreen(),
+      },
     );
   }
 }
@@ -33,7 +41,7 @@ class AuthWrapper extends StatelessWidget {
   Widget build(BuildContext context) {
     final authService = AuthService();
     
-    return StreamBuilder(
+    return StreamBuilder<User?>(
       stream: authService.authStateChanges,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.active) {
